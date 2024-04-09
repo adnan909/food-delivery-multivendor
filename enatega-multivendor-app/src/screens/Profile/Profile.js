@@ -58,8 +58,7 @@ function Profile(props) {
   const refEmail = useRef()
   const [nameError, setNameError] = useState('')
   const [emailError, setEmailError] = useState('')
-  const [toggleEmailView, setToggleEmailView] = useState(true)
-  const [toggleNameView, setToggleNameView] = useState(params?.editName)
+  const [toggleNameView, setToggleNameView] = useState(params?.missingValues)
   const [toggleView, setToggleView] = useState(true)
   const [modelVisible, setModalVisible] = useState(false)
   const [showPass, setShowPass] = useState(false)
@@ -158,25 +157,19 @@ function Profile(props) {
             </View>
           )}
           onPress={() => {
-            navigationService.goBack()
+            if (params?.missingValues)
+              navigation.popToTop()
+            else
+              navigationService.goBack()
           }}
         />
       )
     })
   }, [props.navigation, showPass, toggleView])
 
-  // useEffect(() => {
-  //   if (backScreen) {
-  //     viewHideAndShowName()
-  //     viewHideAndShowEmail()
-  //   }
-  // }, [backScreen])
 
   function viewHideAndShowName() {
     setToggleNameView((prev) => !prev)
-  }
-  function viewHideAndShowEmail() {
-    setToggleEmailView((prev) => !prev)
   }
 
   function onCompleted({ updateUser }) {
@@ -232,9 +225,7 @@ function Profile(props) {
   const handleNamePress = () => {
     viewHideAndShowName()
   }
-  const handleEmailPress = () => {
-    viewHideAndShowEmail()
-  }
+
   const handleNamePressUpdate = async () => {
     await updateName()
   }
@@ -259,7 +250,6 @@ function Profile(props) {
   }
   function onError(error) {
     try {
-      console.log(error)
       if (error.graphQLErrors) {
         FlashMessage({
           message: error.graphQLErrors[0].message
@@ -325,12 +315,12 @@ function Profile(props) {
               ]}
             >
               <TextDefault
-                 bold
-                 textColor={
-                   profile?.emailIsVerified
-                     ? currentTheme.startColor
-                     : currentTheme.textErrorColor
-                 }
+                bold
+                textColor={
+                  profile?.emailIsVerified
+                    ? currentTheme.startColor
+                    : currentTheme.textErrorColor
+                }
               >
                 {profile?.emailIsVerified ? t('verified') : t('unverified')}
               </TextDefault>
@@ -541,17 +531,7 @@ function Profile(props) {
                     </TouchableOpacity>
                   </View>}
                 </View>
-                <View style={styles().headingLink}>
-                  {/* <TouchableOpacity
-                    activeOpacity={0.3}
-                    style={styles().headingButton}
-                    onPress={handleEmailPress}
-                  >
-                    <TextDefault textColor={currentTheme.editProfileButton}>
-                      {t('edit')}
-                    </TextDefault>
-                  </TouchableOpacity> */}
-                </View>
+                <View style={styles().headingLink} />
               </View>
 
               {/* password */}

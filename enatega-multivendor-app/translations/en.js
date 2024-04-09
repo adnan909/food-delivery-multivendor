@@ -212,6 +212,7 @@ export const en = {
   verified: 'Verified',
   verify: 'verify',
   unverified: 'Unverified',
+  verifyNow: 'Verify Now?',
   changePassword: 'Change password',
   currentPassword: 'Current password',
   newPassword: 'New Password',
