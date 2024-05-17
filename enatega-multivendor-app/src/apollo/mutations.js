@@ -349,11 +349,12 @@ export const createUser = `
       }`
 
 export const updateUser = `
-      mutation UpdateUser($name:String!,$phone:String!,$phoneIsVerified:Boolean,$emailIsVerified:Boolean){
-          updateUser(updateUserInput:{name:$name,phone:$phone,phoneIsVerified:$phoneIsVerified,emailIsVerified:$emailIsVerified}){
+      mutation UpdateUser($name:String!,$phone:String!,$phoneIsVerified:Boolean,$emailIsVerified:Boolean, $email: String){
+          updateUser(updateUserInput:{name:$name,phone:$phone,phoneIsVerified:$phoneIsVerified,emailIsVerified:$emailIsVerified, email: $email}){
             _id
             name
             phone
+            email
             phoneIsVerified
             emailIsVerified
           }

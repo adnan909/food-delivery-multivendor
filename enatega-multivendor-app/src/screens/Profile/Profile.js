@@ -55,9 +55,10 @@ function Profile(props) {
   const { params } = route
   const { t } = useTranslation()
   const refName = useRef()
+  const refEmail = useRef()
   const [nameError, setNameError] = useState('')
-  const [toggleEmailView, setToggleEmailView] = useState(true)
-  const [toggleNameView, setToggleNameView] = useState(params?.editName)
+  const [emailError, setEmailError] = useState('')
+  const [toggleNameView, setToggleNameView] = useState(params?.missingValues)
   const [toggleView, setToggleView] = useState(true)
   const [modelVisible, setModalVisible] = useState(false)
   const [showPass, setShowPass] = useState(false)
@@ -156,25 +157,19 @@ function Profile(props) {
             </View>
           )}
           onPress={() => {
-            navigationService.goBack()
+            if (params?.missingValues)
+              navigation.popToTop()
+            else
+              navigationService.goBack()
           }}
         />
       )
     })
   }, [props.navigation, showPass, toggleView])
 
-  useEffect(() => {
-    if (backScreen) {
-      viewHideAndShowName()
-      viewHideAndShowEmail()
-    }
-  }, [backScreen])
 
   function viewHideAndShowName() {
     setToggleNameView((prev) => !prev)
-  }
-  function viewHideAndShowEmail() {
-    setToggleEmailView((prev) => !prev)
   }
 
   function onCompleted({ updateUser }) {
@@ -190,7 +185,7 @@ function Profile(props) {
 
   const validateName = async () => {
     setNameError('')
-
+    setEmailError('')
     const name = refName.current.value()
 
     if (name !== profile?.name) {
@@ -223,17 +218,36 @@ function Profile(props) {
           phone: profile?.phone
         }
       })
+      viewHideAndShowName()
     }
   }
 
   const handleNamePress = () => {
     viewHideAndShowName()
   }
+
   const handleNamePressUpdate = async () => {
     await updateName()
-    viewHideAndShowName()
+  }
+  const handleEmailPressUpdate = async () => {
+    const emailRegex = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/
+    if (emailRegex.test(refEmail.current.value()) !== true) {
+      setEmailError(t('emailErr2'))
+      return
+    }
+    await updateEmail()
   }
 
+  const updateEmail = async () => {
+    await mutate({
+      variables: {
+        name: refName?.current?.value() || profile?.name,
+        phone: profile?.phone,
+        email: refEmail?.current?.value() || profile?.email
+      }
+    })
+
+  }
   function onError(error) {
     try {
       if (error.graphQLErrors) {
@@ -300,7 +314,14 @@ function Profile(props) {
                 }
               ]}
             >
-              <TextDefault textColor={currentTheme.color4} bold>
+              <TextDefault
+                bold
+                textColor={
+                  profile?.emailIsVerified
+                    ? currentTheme.startColor
+                    : currentTheme.textErrorColor
+                }
+              >
                 {profile?.emailIsVerified ? t('verified') : t('unverified')}
               </TextDefault>
             </View>
@@ -385,7 +406,8 @@ function Profile(props) {
           style={styles(currentTheme).flex}
         >
           <View style={styles(currentTheme).mainContainer}>
-            <View>
+            <View >
+              {/* name */}
               <View style={styles(currentTheme).formSubContainer}>
                 <View style={{ flex: 3 }}>
                   <View style={styles(currentTheme).containerHeading}>
@@ -481,9 +503,35 @@ function Profile(props) {
                       </TextDefault>
                     </View>
                   </View>
-                  {changeEmailTab()}
+                  {profile?.email ? changeEmailTab() : <View>
+                    <View style={styles(currentTheme).containerHeading}>
+
+                    </View>
+                    <View style={{ marginTop: 10 }}>
+                      <OutlinedTextField
+                        ref={refEmail}
+                        defaultValue={profile?.email}
+                        autoFocus={true}
+                        maxLength={20}
+                        textColor={currentTheme.newFontcolor}
+                        baseColor={currentTheme.newFontcolor}
+                        errorColor={currentTheme.textErrorColor}
+                        tintColor={!emailError ? currentTheme.newFontcolor : 'red'}
+                        error={emailError}
+                      />
+                    </View>
+
+                    <TouchableOpacity
+                      disabled={loadingMutation}
+                      activeOpacity={0.7}
+                      style={styles(currentTheme).saveContainer}
+                      onPress={handleEmailPressUpdate}
+                    >
+                      <TextDefault bold>{t('update')}</TextDefault>
+                    </TouchableOpacity>
+                  </View>}
                 </View>
-                <View style={{ flex: 1 }} />
+                <View style={styles().headingLink} />
               </View>
 
               {/* password */}

@@ -6,7 +6,7 @@ import ThemeContext from '../../../ui/ThemeContext/ThemeContext'
 import { theme } from '../../../utils/themeColors'
 import { FlashMessage } from '../../../ui/FlashMessage/FlashMessage'
 import UserContext from '../../../context/User'
-import { useNavigation, useRoute } from '@react-navigation/native'
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 
 import useEnvVars from '../../../../environment'
 
@@ -33,6 +33,7 @@ const usePhoneOtp = () => {
   const themeContext = useContext(ThemeContext)
   const currentTheme = theme[themeContext.ThemeValue]
   const [seconds, setSeconds] = useState(30)
+  const isFocused = useIsFocused()
 
   function onError(error) {
     if (error.networkError) {
@@ -65,17 +66,18 @@ const usePhoneOtp = () => {
   }
 
   function onUpdateUserCompleted(data) {
+    if (!isFocused) return
     FlashMessage({
       message: t('numberVerified')
     })
-    if (!profile?.name) navigation.navigate('Profile', { editName: true })
+    if (!profile?.name) navigation.navigate('Profile', { missingValues: true })
     else {
       route.params?.prevScreen
-      ? navigation.navigate(route.params.prevScreen)
-      : navigation.navigate({
-        name: 'Main',
-        merge: true
-      })
+        ? navigation.navigate(route.params.prevScreen)
+        : navigation.navigate({
+          name: 'Main',
+          merge: true
+        })
     }
   }
 
