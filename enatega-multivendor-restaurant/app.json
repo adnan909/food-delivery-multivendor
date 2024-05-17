@@ -2,7 +2,7 @@
   "expo": {
     "name": "Enatega Multivendor Restaurant",
     "slug": "enatega-multivendor-restaurant",
-    "version": "1.0.33",
+    "version": "1.0.34",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -55,7 +55,13 @@
     "plugins": [
       "expo-localization",
       "expo-secure-store",
-      "sentry-expo"
+      "sentry-expo",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "$(PRODUCT_NAME) app does not require access to the microphone."
+        }
+      ]
     ]
   }
 }
